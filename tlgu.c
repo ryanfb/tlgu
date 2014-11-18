@@ -51,12 +51,14 @@
  *       a .pdf version is also available.
  *   ID locator reference - Text version tlgcodes.txt
  *
- * dm: 14-Jun-2001 c port: ELOT-928 with custom dead-accent codes
- *     14-Jun-2004 Unicode
- *     26-Jun-2004 Command-line options
- *     26-Feb-2005 Output file separation (-W option)
- *     06-Mar-2005 Latin accent characters added (without parentheses)
- * tg: 02-Aug-2005 Free-form citations (options -Z, -e) and per-line processing
+ * 14-Jun-2001 dm -- c port: ELOT-928 with custom dead-accent codes
+ * 14-Jun-2004 dm -- Unicode
+ * 26-Jun-2004 dm -- Command-line options
+ * 26-Feb-2005 dm -- Output file separation (-W option)
+ * 06-Mar-2005 dm -- Latin accent characters added (without parentheses)
+ * 02-Aug-2005 tg -- Free-form citations (options -Z, -e) and per-line processing
+ * 22-Apr-2006 dm -- Includes to make gcc (4.x) happy, final sigma fix for free text
+ * 
  */
 
 #include "tlgu.h"
@@ -74,7 +76,7 @@ void store_accents(unsigned char bufferchar);
 const char *resolve_cite_format(const char *cformat);
 
 /****************** PROGRAM VERSION INFORMATION  *******************/
-char *prog_version="1.3";
+char *prog_version="1.4";
 
 /****************** COMMAND LINE OPTIONS  **************************/
 int opt_roman = 0;
@@ -670,12 +672,13 @@ void output_accents(void)
  * Collects a non-zero number from the current <input_buffer> position.
  * Returns: an integer or zero if no number found, -1 on end of buffer
  * Changes: iptr
+ * 22-Apr-2006 dm - dropped unsigned attribute from bufferchar and modnumber
  */
  int getnum(void)
 {
 	#define MAXNUMBERS 32
-	unsigned char bufferchar;
-	unsigned char modnumber[MAXNUMBERS];	/* symbol or font modifier number string */
+	char bufferchar;
+	char modnumber[MAXNUMBERS];	/* symbol or font modifier number string */
 	int imodnumber = 0;	/* index to modnumber */
 	int convnumber = 0;	/* converted modnumber string */
 	int processing = 1;
@@ -849,6 +852,7 @@ void handle_escape_codes(unsigned char beta, int number)
  * Tries to decide on which sigma form to use.
  * Input: index of input_buffer (iptr) after the sigma
  * Returns: output character code
+ * 22-Apr-2006 dm -- nextcode less than space will now produce a final sigma, as well
  */
 int which_sigma(int nextptr)
 {
@@ -868,7 +872,7 @@ int which_sigma(int nextptr)
 			nextcode = input_buffer[nextptr++];
 			if (isalpha(nextcode))
 				return(SIGMEDIAL);
-			if (nextcode > 0x7f)
+			if ((nextcode > 0x7f) || (nextcode < 0x20))
 				return(SIGFINAL);
 			if (strchr(punctuation_codes, nextcode))
 				return(SIGFINAL);

@@ -8,14 +8,17 @@
  * Relevant Unicode standard tables:
  * Greek and Coptic: 0370 - 03FF
  * Greek Extended: 1F00 - 1FFF
+ * 
+ * 22-Apr-2006 dm -- added includes to satisfy picky gcc
  */
 
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <ctype.h>
-
+#include <string.h>
 
 #define INRECSIZE 0x2000
 #define OUTRECSIZE 0xFFFFF
