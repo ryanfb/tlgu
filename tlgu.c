@@ -1,6 +1,6 @@
 /* tlgu: Translates TLG (D) / PHI text files to Unicode text
  *
- * Copyright (C) 2004, 2005 Dimitri Marinakis
+ * Copyright (C) 2004, 2005, 2011 Dimitri Marinakis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License Version 2
@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * Usage:
- *	 tlgu [options] infile outfile
+ *	 tlgu [options] infile [outfile]
  *
  * Options:
  *	-r -- primarily Roman text; default betastate = ROMAN, reset on every ID code
@@ -58,6 +58,7 @@
  * 06-Mar-2005 dm -- Latin accent characters added (without parentheses)
  * 02-Aug-2005 tg -- Free-form citations (options -Z, -e) and per-line processing
  * 22-Apr-2006 dm -- Includes to make gcc (4.x) happy, final sigma fix for free text
+ * 02-Oct-2011 dm -- Output written to stdout if an output file name is not provided 
  * 
  */
 
@@ -76,7 +77,7 @@ void store_accents(unsigned char bufferchar);
 const char *resolve_cite_format(const char *cformat);
 
 /****************** PROGRAM VERSION INFORMATION  *******************/
-char *prog_version="1.4";
+char *prog_version="1.5";
 
 /****************** COMMAND LINE OPTIONS  **************************/
 int opt_roman = 0;
@@ -173,25 +174,26 @@ int id_process;	/* if non-zero, command must be processed */
 void usage_info(void)
 {
 	printf("\ntlgu: TLG/PHI beta code file to Unicode translator ver. %s\n", prog_version);
-	printf("\ntlgu: Copyright (C) 2004, 2005 Dimitri Marinakis");
+	printf("\ntlgu: Copyright (C) 2004, 2005, 2011 Dimitri Marinakis");
 	printf("\ntlgu: This program is free software; you are encouraged to redistribute it under");
-	printf("\ntlgu: the terms of the GNU General Public License.\n");
+	printf("\ntlgu: the terms of the GNU General Public License (version 2).\n");
 	printf("\ntlgu: This program comes with ABSOLUTELY NO WARRANTY. See the GNU General Public");
-	printf("\ntlgu: License (e.g. in the file named `COPYING') for more details.\n");
-	printf("\ntlgu: Syntax: [-options...] tlgu beta_code_file text_file\n\n");
-	printf("tlgu: -r -- primarily Roman text; default betastate = ROMAN, reset on every ID code\n");
-	printf("tlgu: -v -w -x -y -z -- work reference citations are printed in the form xxx.xxx...xxx\n");
-	printf("tlgu: -Z <custom_citation_format_prefix> -- use reference and description citation codes in string\n");
-	printf("tlgu:    reference a-z, description A-Z also special codes \\t(ab) \\n(new line) \\r(eturn)\n");
-	printf("tlgu:    e.g. \"%%A/%%Z/%%v/%%w/%%y/%%z\\t\" \n");
-	printf("tlgu: -e <custom_blank_citation_string> -- e.g. \"[NONE]\" instead of default \"\"\n");
-	printf("tlgu: -b -- books are preceded by a page feed and description citations are printed\n");
-	printf("tlgu: -p -- pagination is observed, otherwise book lines are printed continuously\n");
-	printf("tlgu: -B -- output blank space (tab) at the beginning of each line\n");
-	printf("tlgu: -C -- citation debug information is printed\n");
-	printf("tlgu: -S -- special code debug information is printed\n");
- 	printf("tlgu: -V -- processing debug information is printed\n");
-	printf("tlgu: -W -- multiple output files, one for each work (book)\n\n");
+	printf("\ntlgu: License in the file named `COPYING' for more details.\n");
+	printf("\ntlgu: Syntax: [-options...] tlgu beta_code_file [unicode_text_file]\n");
+	printf("\ntlgu: -r -- primarily Roman text; default betastate = ROMAN, reset on every ID code");
+	printf("\ntlgu: -v -w -x -y -z -- work reference citations are printed in the form xxx.xxx...xxx");
+	printf("\ntlgu: -Z <custom_citation_format_prefix> -- use reference and description citation codes in string");
+	printf("\ntlgu:    reference a-z, description A-Z also special codes \\t(ab) \\n(new line) \\r(eturn)");
+	printf("\ntlgu:    e.g. \"%%A/%%Z/%%v/%%w/%%y/%%z\\t\" \n");
+	printf("\ntlgu: -e <custom_blank_citation_string> -- e.g. \"[NONE]\" instead of default \"\"");
+	printf("\ntlgu: -b -- books are preceded by a page feed and description citations are printed");
+	printf("\ntlgu: -p -- pagination is observed, otherwise book lines are printed continuously");
+	printf("\ntlgu: -B -- output blank space (tab) at the beginning of each line");
+	printf("\ntlgu: -C -- citation debug information is printed");
+	printf("\ntlgu: -S -- special code debug information is printed");
+ 	printf("\ntlgu: -V -- processing debug information is printed");
+	printf("\ntlgu: -W -- multiple output files, one for each work (book); output filename must be specified");
+	printf("\n");
 }
 
 main(int argc, char * argv[])
@@ -204,7 +206,7 @@ main(int argc, char * argv[])
 		exit(1);
 	}
 
-	if (argc < 3) {
+	if (argc < 2) {
 		usage_info();
 		exit(1);
 	}
@@ -212,13 +214,13 @@ main(int argc, char * argv[])
 	--argc ;
 	++argv ;
 
-	while(argc > 2 && argv[0][0] == '-') {
+	while(argc > 1 && argv[0][0] == '-') {
 		switch(argv[0][1]) {
 			case 'W':
-				opt_multiple =1;
+				opt_multiple = 1;
 				break ;
 			case 'V':
-				opt_verbose =1;
+				opt_verbose = 1;
 				break ;
 			case 'S':
 				opt_debug_special = 1;
@@ -288,8 +290,11 @@ main(int argc, char * argv[])
 	argc-- ;
 	argv++ ;
 	}
-
-	return tlgu(argv[0], argv[1]);
+	if (argc < 2) {
+		return tlgu(argv[0], "");
+	} else {
+		return tlgu(argv[0], argv[1]);
+	}
 }
 
 
@@ -309,25 +314,29 @@ int tlgu(char *input_file, char *output_file)
 	int wehaveinput;    /* flag for while */
 	int beta_return;    /* process beta return code */
 
-	char new_file[256];
+	char new_file[MAXFILELEN];
 	struct stat filestat;
 
 	/* Open input and output files
 	 */
 	infile = open(input_file, O_RDONLY);
 	if (infile < 0) {
-		perror("tlgu input file open");
+		perror("\ntlgu input file open");
 		return(1);
 	} else {
-		if (strlen(output_file) < MAXFILELEN-5) {
-			strcpy(new_file, output_file);
+		if (strlen(output_file) == 0) {
+			outfile = STDOUT_FILENO;
 		} else {
-			printf("\ntlgu output filename too long - exiting\n");
-			return(1);
+			if (strlen(output_file) < MAXFILELEN-5) {
+				strcpy(new_file, output_file);
+			} else {
+				printf("\ntlgu output filename too long - exiting\n");
+				return(1);
+			}
+			outfile = open(new_file, O_WRONLY | O_CREAT | O_TRUNC);
 		}
-		outfile = open(new_file, O_WRONLY | O_CREAT | O_TRUNC);
 		if (outfile < 0) {
-			perror("tlgu output file create");
+			perror("\ntlgu output file create");
 			close(infile);
 			return(1);
 		}
@@ -351,7 +360,7 @@ int tlgu(char *input_file, char *output_file)
 	else betastate = HELLENIC;
 
 	/*  Read, process and write file blocks,
-	 *  Optionally create one file per book (-W)
+	 *  Optionally create one file per book (-W), unless no output file name is specified
 	 *  Change file mode (equivalent to chmod 644 output_file),
 	 *  and return.
 	 *  Note:  Local deblocking usually yields higher speeds
@@ -372,14 +381,14 @@ int tlgu(char *input_file, char *output_file)
 				ocnt = write(outfile, output_buffer, optr);
 				optr = 0;
 				if (ocnt < 0) {
-					perror("tlgu output file write");
+					perror("\ntlgu output file write");
 					wehaveinput = 0;
 				}
 			} else if (beta_return != -2) {  /* no more bytes to write, no book change request */
 				if (opt_verbose) printf("\ntlgu: no more bytes to write");
 				wehaveinput = 0;    /* signal no more input */
 			}
-			if (beta_return == -2) {
+			if ((beta_return == -2) && (outfile != STDOUT_FILENO)) {
 			 	/* book change request, close current file and open a new one */
 				if (opt_verbose) printf("\ntlgu: book change request: %s", previous_bcit[1]);
 				if (close(outfile)) return(1);
@@ -393,12 +402,10 @@ int tlgu(char *input_file, char *output_file)
 				sprintf(new_file, "%s-%s.txt", output_file, previous_bcit[1]);
 				outfile = open(new_file, O_WRONLY | O_CREAT | O_TRUNC);
 				if (outfile < 0) {
-					perror("tlgu: new_file create");
+					perror("\ntlgu: new_file create");
 					close(infile);
 					return(1);
 				}
-
-
 			}
 		}
 	}
@@ -409,11 +416,11 @@ int tlgu(char *input_file, char *output_file)
 	close(infile);
 
 	if (close(outfile)) {
-		perror("tlgu output file close");
+		perror("\ntlgu output file close");
 		return(1);
 	}
 	if (chmod(new_file, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) {
-		perror("tlgu output file chmod");
+		perror("\ntlgu output file chmod");
 		return(1);
 	}
 	if (opt_verbose) printf("\ntlgu: processing complete\n");
@@ -701,7 +708,7 @@ void output_accents(void)
 			processing = 0;
 		}
 	}
-	if (convnumber < 0) perror("did not complete number\n");
+	if (convnumber < 0) perror("\ndid not complete number\n");
 	return convnumber;
 }
 
@@ -712,7 +719,7 @@ void output_accents(void)
 void output_utf(int ucode)
 {
 	if ((optr+3) > OUTRECSIZE) {
-		perror("optr out of range");
+		perror("\noptr out of range");
 	} else if (ucode == 0){
 		/* do nothing */
 	} else if (ucode < 0x80) {

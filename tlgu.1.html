@@ -1,8 +1,11 @@
-<!-- Creator     : groff version 1.18.1 -->
-<!-- CreationDate: Sat Apr 22 09:56:52 2006 -->
+<!-- Creator     : groff version 1.19.1 -->
+<!-- CreationDate: Sun Oct  2 15:53:20 2011 -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta name="generator" content="groff -Thtml, see www.gnu.org">
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <meta name="Content-Style" content="text/css">
 <title>tlgu</title>
 </head>
@@ -16,6 +19,7 @@
 <a href="#HISTORY AND INTENDED USE">HISTORY AND INTENDED USE</a><br>
 <a href="#EXAMPLES">EXAMPLES</a><br>
 <a href="#POST-PROCESSING EXAMPLES">POST-PROCESSING EXAMPLES</a><br>
+<a href="#FURTHER DEVELOPMENT">FURTHER DEVELOPMENT</a><br>
 <a href="#REFERENCES">REFERENCES</a><br>
 <a href="#COPYRIGHT">COPYRIGHT</a><br>
 
@@ -26,7 +30,7 @@
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="10%"></td>
+<td width="11%"></td>
 <td width="89%">
 <p>tlgu &minus; convert beta code TLG and PHI CD-ROM txt
 files to Unicode</p>
@@ -38,10 +42,10 @@ files to Unicode</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="10%"></td>
+<td width="11%"></td>
 <td width="89%">
-<p><b>tlgu</b> [ <i>options</i> ] <i>input_file
-output_file</i></p>
+<p><b>tlgu</b> [ <i>options</i> ] <i>input_file</i> [
+<i>output_file</i> ]</p>
 </td>
 </table>
 <a name="DESCRIPTION"></a>
@@ -50,13 +54,15 @@ output_file</i></p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="10%"></td>
+<td width="11%"></td>
 <td width="89%">
 <p><b>tlgu</b> will convert an <i>input_file</i> from
 Thesaurus Linguae Graeca (TLG) and Packard Humanities
 Institute (PHI) representation to a Unicode (UTF-8)
-<i>output_file</i>. The TLG/PHI representation consists of
-<b>beta-code</b> text and <b>citation</b> information.</p>
+<i>output_file</i>. If output_file is not specified, the
+Unicode text is directed to standard output. The TLG/PHI
+representation consists of <b>beta-code</b> text and
+<b>citation</b> information.</p>
 </td>
 </table>
 <a name="OPTIONS"></a>
@@ -66,12 +72,12 @@ Institute (PHI) representation to a Unicode (UTF-8)
        cols="4" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="4%">
+<td width="3%">
 
 <p><b>&minus;b</b></p>
 </td>
-<td width="5%"></td>
-<td width="77%">
+<td width="8%"></td>
+<td width="78%">
 
 <p>inserts a form feed and citation information (levels a,
 b, c, d) on every &quot;book&quot; citation change. By
@@ -80,24 +86,24 @@ default the program will output line feeds only (see also
 </td>
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="4%">
+<td width="3%">
 
 <p><b>&minus;p</b></p>
 </td>
-<td width="5%"></td>
-<td width="77%">
+<td width="8%"></td>
+<td width="78%">
 
 <p>observes paging instructions. By default the program
 will output line feeds only.</p>
 </td>
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="4%">
+<td width="3%">
 
 <p><b>&minus;r</b></p>
 </td>
-<td width="5%"></td>
-<td width="77%">
+<td width="8%"></td>
+<td width="78%">
 
 <p>primarily Roman text. Some TLG texts, notably
 doccan1.txt and doccan2.txt are mainly roman texts lacking
@@ -107,60 +113,60 @@ encountered.</p>
 </td>
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="4%">
+<td width="3%">
 
 <p><b>&minus;v</b></p>
 </td>
-<td width="5%"></td>
-<td width="77%">
+<td width="8%"></td>
+<td width="78%">
 
 <p>highest-level reference citation is included before each
 text line (v-level)</p>
 </td>
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="4%">
+<td width="3%">
 
 <p><b>&minus;w</b></p>
 </td>
-<td width="5%"></td>
-<td width="77%">
+<td width="8%"></td>
+<td width="78%">
 
 <p>reference citation is included before each text line
 (w-level)</p>
 </td>
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="4%">
+<td width="3%">
 
 <p><b>&minus;x</b></p>
 </td>
-<td width="5%"></td>
-<td width="77%">
+<td width="8%"></td>
+<td width="78%">
 
 <p>reference citation is included before each text line
 (x-level)</p>
 </td>
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="4%">
+<td width="3%">
 
 <p><b>&minus;y</b></p>
 </td>
-<td width="5%"></td>
-<td width="77%">
+<td width="8%"></td>
+<td width="78%">
 
 <p>reference citation is included before each text line
 (y-level)</p>
 </td>
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="4%">
+<td width="3%">
 
 <p><b>&minus;z</b></p>
 </td>
-<td width="5%"></td>
-<td width="77%">
+<td width="8%"></td>
+<td width="78%">
 
 <p>lowest-level reference citation is included before each
 text line (z-level).</p>
@@ -170,7 +176,7 @@ text line (z-level).</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="10%"></td>
+<td width="11%"></td>
 <td width="89%">
 <p><b>&minus;Z
 &lt;custom_citation_format_string&gt;</b></p></td>
@@ -179,8 +185,8 @@ text line (z-level).</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
+<td width="22%"></td>
+<td width="78%">
 <p>an arbitrary combination of citation information is
 included before each text line; see also -e option e.g.
 &quot;%A/%B/%x/%y/%z\t&quot; will output the contents of the
@@ -193,7 +199,7 @@ character.</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="10%"></td>
+<td width="11%"></td>
 <td width="89%">
 <p><b>&minus;e
 &lt;custom_blank_citation_string&gt;</b></p></td>
@@ -202,8 +208,8 @@ character.</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
+<td width="22%"></td>
+<td width="78%">
 <p>if there is no citation information for a citation level
 defined with the -Z option above, a single right-hand slash
 is substituted by default; you may define any string with
@@ -216,60 +222,61 @@ valid inputs</p>
        cols="4" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="2%">
+<td width="3%">
 
 <p><b>&minus;B</b></p>
 </td>
-<td width="7%"></td>
-<td width="77%">
+<td width="8%"></td>
+<td width="78%">
 
 <p>inserts blank space (a tab) before each and every
 line.</p>
 </td>
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="2%">
+<td width="3%">
 
 <p><b>&minus;C</b></p>
 </td>
-<td width="7%"></td>
-<td width="77%">
+<td width="8%"></td>
+<td width="78%">
 
 <p>citation debug information is output.</p>
 </td>
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="2%">
+<td width="3%">
 
 <p><b>&minus;S</b></p>
 </td>
-<td width="7%"></td>
-<td width="77%">
+<td width="8%"></td>
+<td width="78%">
 
 <p>special code debug information is output.</p>
 </td>
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="2%">
+<td width="3%">
 
 <p><b>&minus;V</b></p>
 </td>
-<td width="7%"></td>
-<td width="77%">
+<td width="8%"></td>
+<td width="78%">
 
 <p>block processing information is output (verbose).</p>
 </td>
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="2%">
+<td width="3%">
 
 <p><b>&minus;W</b></p>
 </td>
-<td width="7%"></td>
-<td width="77%">
+<td width="8%"></td>
+<td width="78%">
 
 <p>each work (book) is output as a separate file in the
-form output_file-xxx.txt</p>
+form output_file-xxx.txt; if an output file is not
+specified, this option has no effect.</p>
 </td>
 </table>
 <a name="HISTORY AND INTENDED USE"></a>
@@ -278,7 +285,7 @@ form output_file-xxx.txt</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="10%"></td>
+<td width="11%"></td>
 <td width="89%">
 <p>The purpose of <b>tlgu</b> is to translate binary
 TLG/PHI-format files into readable and editable text. It is
@@ -290,15 +297,18 @@ attractive, but readable.</p>
 <!-- INDENTATION -->
 <p>Then came Unicode and a plethora of accented character
 glyphs; nice-looking but with the well-known drawback that
-special processing is needed to do wild-card searches. Nice
-polytonic fonts have now been made available (Cardo,
-Gentium, Athena, Athenian, Porson) and, surely, these will
-be expanded as special-use code points are included in the
-Unicode definition (musical symbols, other special symbols)
-and more fonts will be created.</p>
+special processing is needed to do wild-card searches.
+Polytonic fonts are already available (Cardo, Gentium,
+Athena, Athenian, Porson); new fonts are being created and
+older fonts are being expanded as special-use code points
+are included in the Unicode definition (musical symbols,
+other special symbols). A notable effort since this note was
+originally drafted is that of the Greek Font Society, now
+featuring a great, and expanding, selection of open
+polytonic fonts.</p>
 <!-- INDENTATION -->
 <p>So, at this point in time, <b>tlgu</b> will crunch a file
-which has been formatted according to the published TLG-D
+which has been formatted according to the published TLG
 format and produce codes for most glyphs generally
 available. No attempt has been made to introduce
 multi-character sequences or formatting codes (font
@@ -307,12 +317,6 @@ output the respective &quot;code family&quot; glyph. You may
 use the <b>&minus;S</b> option to check such codes against
 the published beta code definition.</p>
 <!-- INDENTATION -->
-<p>You may not like the character output for a specific
-code. Check out the <b>tlgcodes.h</b> file containing the
-special symbol and punctuation codes and select one to suit
-you better. It will probably be a while before the beta to
-Unicode correspondence settles down.</p>
-<!-- INDENTATION -->
 <p>July 2005 - Troy A. Griffitts (scribe, crosswire org)
 contributed the arbitrary citation output code and added
 per-line processing of the input file.</p>
@@ -320,6 +324,9 @@ per-line processing of the input file.</p>
 <p>April 2006 - Final sigma will now be output at
 end-of-line (!) from free-form input text (thank you
 Jan).</p>
+<!-- INDENTATION -->
+<p>October 2011 - stdout is used if output_file is not
+specified.</p>
 </td>
 </table>
 <a name="EXAMPLES"></a>
@@ -328,7 +335,7 @@ Jan).</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="10%"></td>
+<td width="11%"></td>
 <td width="89%">
 <p><b>./tlgu -r DOCCAN2.TXT doccanu.txt</b> Translate the
 TLG canon to a unicode text file. Note the use of the
@@ -340,7 +347,7 @@ font).</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="10%"></td>
+<td width="11%"></td>
 <td width="89%">
 <p><b>./tlgu -x -y -z TLG1799.TXT tlg1799u.txt</b></p></td>
 </table>
@@ -348,8 +355,8 @@ font).</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
+<td width="22%"></td>
+<td width="78%">
 <p>Generate a continuous file with the texts of granpa
 Euclides. Available citations (-x -y -z) are
 Book//demonstratio/line as shown in the respective
@@ -360,7 +367,7 @@ Book//demonstratio/line as shown in the respective
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="10%"></td>
+<td width="11%"></td>
 <td width="89%">
 <p><b>./tlgu -b -B TLG1799.TXT tlg1799u.txt</b></p></td>
 </table>
@@ -368,8 +375,8 @@ Book//demonstratio/line as shown in the respective
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
+<td width="22%"></td>
+<td width="78%">
 <p>Generate the same texts, this time with a page feed and
 book citation information on the first page of each book and
 a tab before each line (use with OOo versions earlier than
@@ -380,7 +387,7 @@ a tab before each line (use with OOo versions earlier than
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="10%"></td>
+<td width="11%"></td>
 <td width="89%">
 <p><b>./tlgu -C TLG1799.TXT tlg1799u.txt</b></p></td>
 </table>
@@ -388,8 +395,8 @@ a tab before each line (use with OOo versions earlier than
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
+<td width="22%"></td>
+<td width="78%">
 <p>See how the citation information changes within each TLG
 block.</p>
 </td>
@@ -398,7 +405,7 @@ block.</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="10%"></td>
+<td width="11%"></td>
 <td width="89%">
 <p><b>./tlgu -S TLG1799.TXT tlg1799u.txt | sort &gt;
 symbols1799.txt</b></p></td>
@@ -407,8 +414,8 @@ symbols1799.txt</b></p></td>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
+<td width="22%"></td>
+<td width="78%">
 <p>Check out the symbols used in a work. Book and x, y, z
 references are printed on a separate line for each symbol.
 Sort / grep the output to locate specific symbols of
@@ -419,7 +426,7 @@ interest; save in a file for later use.</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="10%"></td>
+<td width="11%"></td>
 <td width="89%">
 <p><b>./tlgu -W TLG0006.TXT tlg0006u</b></p></td>
 </table>
@@ -427,8 +434,8 @@ interest; save in a file for later use.</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
+<td width="22%"></td>
+<td width="78%">
 <p>Will produce separate files for each work, named
 tlg006u-001.txt etc.</p>
 </td>
@@ -437,7 +444,7 @@ tlg006u-001.txt etc.</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="10%"></td>
+<td width="11%"></td>
 <td width="89%">
 <p><b>./tlgu -Z &quot;%A/%B/%D/%c/%d/%Z/%x/%y/%z\t&quot; -e
 &quot;-&quot; chr0010.txt chr0010u.txt</b></p></td>
@@ -446,8 +453,8 @@ tlg006u-001.txt etc.</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
+<td width="22%"></td>
+<td width="78%">
 <p>Will generate a file with citation description (A, B, D,
 Z) and citation reference (c, d, x, y, z) levels, separated
 by &quot;/&quot; followed by a TAB character and the
@@ -463,19 +470,19 @@ etc.</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="10%"></td>
+<td width="11%"></td>
 <td width="89%">
-<p>I use the OpenOffice suite for most of my work. This
-example shows one of many possible ways of using the search
-and replace facility to create a readable version of the
-Suda lexicon.</p>
+<p>I use the OpenOffice/LibreOffice suite for most of my
+work. This example shows one of many possible ways of using
+the search and replace facility to create a readable version
+of the Suda lexicon.</p>
 </td>
 </table>
 <!-- INDENTATION -->
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="10%"></td>
+<td width="11%"></td>
 <td width="89%">
 <p><b>./tlgu -B TLG4085.TXT tlg4085u.txt</b></p></td>
 </table>
@@ -483,8 +490,8 @@ Suda lexicon.</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
+<td width="22%"></td>
+<td width="78%">
 <p>A Unicode file with the text is created</p>
 </td>
 </table>
@@ -492,16 +499,17 @@ Suda lexicon.</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="10%"></td>
+<td width="11%"></td>
 <td width="89%">
-<p><b>Open the generated file with OOo:</b></p></td>
+<p><b>Open the generated file with
+Openoffice/LibreOffice:</b></p></td>
 </table>
 <!-- INDENTATION -->
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
+<td width="22%"></td>
+<td width="78%">
 <p>File | Open | Filename: tlg4085u.txt, File Type: Text
 Encoded &minus;&minus; Press Open</p>
 <!-- INDENTATION -->
@@ -514,7 +522,7 @@ installed in your machine (e.g. Cardo). Press OK.</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="10%"></td>
+<td width="11%"></td>
 <td width="89%">
 <p><b>Replace angle brackets with expanded text</b></p></td>
 </table>
@@ -522,8 +530,8 @@ installed in your machine (e.g. Cardo). Press OK.</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
+<td width="22%"></td>
+<td width="78%">
 <p>Lexicon terms are enclosed in &lt;angle brackets&gt;. The
 actual beta codes indicate the use of expanded text for
 emphasis. Select Edit | Find &amp; Replace. The <b>Find
@@ -537,9 +545,9 @@ including angle brackets&quot;.</p>
 <p>In the <b>Replace With</b> window insert a single
 ampersand: <b>&amp;</b> This means that we need to
 <b>add</b> formatting information (this case) or additional
-text to the text found. Press <b>Format...</b> and select
-the <b>Position</b> tab; select Spacing Expanded by 2.0
-points. Press OK.</p>
+text to the text found. Press <b>More Options</b>,
+<b>Format...</b> and select the <b>Position</b> tab; select
+Spacing Expanded by 2.0 points. Press OK.</p>
 <!-- INDENTATION -->
 <p>Check the <b>Regular Expressions</b> box and press
 <b>Replace All</b>.</p>
@@ -554,7 +562,7 @@ points. Press OK.</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="10%"></td>
+<td width="11%"></td>
 <td width="89%">
 <p><b>Other useful information</b></p></td>
 </table>
@@ -562,23 +570,21 @@ points. Press OK.</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p>In the &quot;Execute&quot; tab of the
-&quot;Properties&quot; window of my KDesktop Link to
-Application I have the following command (single
-line):<b><br>
-LC_CTYPE=el_GR.UTF-8
-/whereitsat/OpenOffice.org1.1.x/soffice</b> (or
-<b>/usr/bin/oofice</b>).<br>
-The prefix, an environment variable, allows you to use the
-same program with different locales; in this case, hellenic
-Unicode (UTF-8).</p>
+<td width="22%"></td>
+<td width="78%">
+<p>If you are using your wordprocessor with a locale setting
+other than Hellenic (el_GR), the following invocation with
+the desired character classification may prove useful for
+the occasional polytonic editing:</p>
+<!-- INDENTATION -->
+<p><b>LC_CTYPE=el_GR.UTF-8 /usr/bin/soffice</b>
+(or<b>/opt/libreoffice3.4/program/soffice</b> ).</p>
 <!-- INDENTATION -->
 <p>I put my default locale and keyboard definitions in my
-<b>.profile</b>:<b><br>
-export LC_CTYPE=el_GR.UTF-8<br>
-setxkbmap us,gr ,polytonic -option grp:ctrl_shift_toggle
+<b>.bashrc</b> or <b>.profile</b>:</p>
+<!-- INDENTATION -->
+<p><b>export LC_CTYPE=el_GR.UTF-8<br>
+setxkbmap us,el ,polytonic -option grp:ctrl_shift_toggle
 -option grp_led:scroll</b></p>
 <!-- INDENTATION -->
 <p>This way multi-lingual text can be entered; keyboard
@@ -587,29 +593,53 @@ keyboard layout is indicated by the Scroll Lock light on the
 keyboard.</p>
 </td>
 </table>
+<a name="FURTHER DEVELOPMENT"></a>
+<h2>FURTHER DEVELOPMENT</h2>
+<!-- INDENTATION -->
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="89%">
+<p>You may not like the character output for a specific
+code. Check out the <b>tlgcodes.h</b> file containing the
+special symbol and punctuation codes and select one to suit
+you better. It will probably be a while before the beta to
+Unicode correspondence settles down.</p>
+<!-- INDENTATION -->
+<p>Drop me a line, if you need a new feature; let me know if
+you do find an interesting applications that others can
+profit from.</p>
+</td>
+</table>
 <a name="REFERENCES"></a>
 <h2>REFERENCES</h2>
 <!-- INDENTATION -->
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="10%"></td>
+<td width="11%"></td>
 <td width="89%">
 <p>There are several texts describing the internal
 representation of <b>PHI</b> and <b>TLG</b> text, ID data,
 citation data and index files. The originator of this format
 is the Packard Humanities Institute. The TLG is maintained
 by UCI &minus; see <b>www.tlg.uci.edu</b> &minus; where you
-may find the <b>TLG Beta Code Manual</b> and the <b>TLG Beta
-Code Quick Reference Guide</b>.</p>
+may find the latest versions of the <b>TLG Beta Code
+Manual</b> and the <b>TLG Beta Code Quick Reference
+Guide</b>.</p>
 <!-- INDENTATION -->
 <p>Unicode consortium (<b>www.unicode.org</b>) publications
 pertaining to the codification of characters used in
 Hellenic literature, scientific and musical texts.</p>
 <!-- INDENTATION -->
-<p>The OpenOffice suite (<b>www.openoffice.org</b>) includes
-a word processor that you can use to load, process and
-create new polytonic texts.</p>
+<p>The OpenOffice/Libreoffice suite in its various editions
+(<b>www.openoffice.org</b> - apache.org,
+<b>www.libreoffice.org</b>, <b>www.neooffice.org</b>)
+includes a word processor that you can use to load, process
+and create new polytonic texts.</p>
+<!-- INDENTATION -->
+<p>Greek Font Society: <b>www.greekfontsociety.gr</b></p>
 </td>
 </table>
 <a name="COPYRIGHT"></a>
@@ -618,9 +648,9 @@ create new polytonic texts.</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="10%"></td>
+<td width="11%"></td>
 <td width="89%">
-<p>Copyright (C) 2004, 2005 Dimitri Marinakis (dm, ssa
+<p>Copyright (C) 2004, 2005, 2011 Dimitri Marinakis (dm, ssa
 gr).</p>
 <!-- INDENTATION -->
 <p>This file is part of tlgu which is free software; you can

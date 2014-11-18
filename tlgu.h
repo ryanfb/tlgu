@@ -1,7 +1,7 @@
 /* tlgu.h
  *
  * This is part of the tlgu utility
- * Copyright (C) 2004, 2005 Dimitri Marinakis
+ * Copyright (C) 2004, 2005, 2011 Dimitri Marinakis
  * see the file tlgu.c for copying conditions
  *
  * Hellenic character codes
@@ -10,6 +10,7 @@
  * Greek Extended: 1F00 - 1FFF
  * 
  * 22-Apr-2006 dm -- added includes to satisfy picky gcc
+ * 02-Oct-2011 dm -- added unistd.h to get STDOUT_FILENO
  */
 
 #include <stdlib.h>
@@ -17,6 +18,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <ctype.h>
 #include <string.h>
 

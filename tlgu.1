@@ -1,4 +1,4 @@
-.\" Copyright (C) 2004, 2005  Dimitri Marinakis (dm, ssa gr).
+.\" Copyright (C) 2004, 2005, 2011  Dimitri Marinakis (dm, ssa gr).
 .\"
 .\" This file is part of tlgu which is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License (version 2)
@@ -14,7 +14,7 @@
 .\" Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 .\" Boston, MA 02110-1301 USA.
 .\"
-.TH tlgu 1 "22-Apr-2006" "Version 1.4" "TLG to Unicode Converter"
+.TH tlgu 1 "02-Oct-2011" "Version 1.5" "TLG to Unicode Converter"
 .SH NAME
 
 tlgu \- convert beta code TLG and PHI CD-ROM txt files to Unicode
@@ -25,13 +25,16 @@ tlgu \- convert beta code TLG and PHI CD-ROM txt files to Unicode
 .I options
 ]
 .I input_file
+[
 .I output_file
+]
 
 .SH DESCRIPTION
 .B tlgu
 will convert an \fIinput_file\fP from Thesaurus Linguae Graeca (TLG) and Packard Humanities Institute (PHI) representation
-to a Unicode (UTF-8) \fIoutput_file\fP.  The TLG/PHI representation consists of \fBbeta-code\fP
-text and \fBcitation\fP information.
+to a Unicode (UTF-8) \fIoutput_file\fP.
+If output_file is not specified, the Unicode text is directed to standard output.
+The TLG/PHI representation consists of \fBbeta-code\fP text and \fBcitation\fP information.
 
 .SH OPTIONS
 .TP
@@ -88,7 +91,8 @@ special code debug information is output.
 block processing information is output (verbose).
 .TP
 .B \-W
-each work (book) is output as a separate file in the form output_file-xxx.txt
+each work (book) is output as a separate file in the form output_file-xxx.txt;
+if an output file is not specified, this option has no effect.
 
 .SH HISTORY AND INTENDED USE
 The purpose of \fBtlgu\fP is to translate binary TLG/PHI-format files into readable and editable text.
@@ -98,24 +102,24 @@ by dead accent characters - not very attractive, but readable.
 .sp 1
 Then came Unicode and a plethora of accented character glyphs; nice-looking but
 with the well-known drawback that special processing is needed to do wild-card searches.
-Nice polytonic fonts have now been made available (Cardo, Gentium, Athena, Athenian,
-Porson) and, surely, these will be expanded as special-use code points are included
-in the Unicode definition (musical symbols, other special symbols) and more fonts will be created.
+Polytonic fonts are already available (Cardo, Gentium, Athena, Athenian, Porson); new fonts
+are being created and older fonts are being expanded as special-use code points are included
+in the Unicode definition (musical symbols, other special symbols).
+A notable effort since this note was originally drafted is that of the Greek Font Society,
+now featuring a great, and expanding, selection of open polytonic fonts.
 .sp 1
 So, at this point in time, \fBtlgu\fP will crunch a file which has been formatted
-according to the published TLG-D format and produce codes for most glyphs
+according to the published TLG format and produce codes for most glyphs
 generally available.  No attempt has been made to introduce multi-character sequences
 or formatting codes (font changes).  If a code has not been defined, the program will output
 the respective "code family" glyph.  You may use the \fB\-S\fP option to check such codes
 against the published beta code definition.
 .sp 1
-You may not like the character output for a specific code.  Check out the \fBtlgcodes.h\fP file
-containing the special symbol and punctuation codes and select one to suit you better.  It will
-probably be a while before the beta to Unicode correspondence settles down.
-.sp 1
 July 2005 - Troy A. Griffitts (scribe, crosswire org) contributed the arbitrary citation output code and added per-line processing of the input file. 
 .sp 1
 April 2006 - Final sigma will now be output at end-of-line (!) from free-form input text (thank you Jan).
+.sp 1
+October 2011 - stdout is used if output_file is not specified.
 .SH EXAMPLES
 .B ./tlgu -r DOCCAN2.TXT doccanu.txt
 Translate the TLG canon to a unicode text file. Note the use of the \fB-r\fP option (this file
@@ -147,13 +151,13 @@ Blank citation elements will be filled with a single "-"
 e.g. Asia/Smyrna/1222-1223 ac/IGChAs/Asia Min [Chr]/88/-/2A/7p1 [TAB] inscription text etc.
 
 .SH POST-PROCESSING EXAMPLES
-I use the OpenOffice suite for most of my work.  This example shows one of many possible
+I use the OpenOffice/LibreOffice suite for most of my work.  This example shows one of many possible
 ways of using the search and replace facility to create a readable version of the Suda lexicon.
 .TP
 .B ./tlgu -B TLG4085.TXT tlg4085u.txt
 A Unicode file with the text is created
 .TP
-.B Open the generated file with OOo:
+.B Open the generated file with Openoffice/LibreOffice:
 File | Open | Filename: tlg4085u.txt,
 File Type: Text Encoded \-\- Press Open
 .sp 1
@@ -169,7 +173,7 @@ This means "find any characters between angle brackets, not including angle brac
 .sp 1
 In the \fBReplace With\fP window insert a single ampersand: \fB&\fP
 This means that we need to \fBadd\fP formatting information (this case) or additional text to
-the text found.  Press \fBFormat...\fP and select the \fBPosition\fP tab; select Spacing 
+the text found.  Press  \fBMore Options\fP, \fBFormat...\fP and select the \fBPosition\fP tab; select Spacing 
 Expanded by 2.0 points.  Press OK.
 .sp 1
 Check the \fBRegular Expressions\fP box and press \fBReplace All\fP.
@@ -179,40 +183,52 @@ You may now replace the angle brackets with nothings.
 Repeat the above procedure for titles enclosed in {braces}.  Write a macro...
 .TP
 .B Other useful information
-In the "Execute" tab of the "Properties" window of my KDesktop Link to Application
-I have the following command (single line):
+If you are using your wordprocessor with a locale setting other than Hellenic (el_GR), the following
+invocation with the desired character classification may prove useful for the occasional polytonic editing:
 .br
-\fBLC_CTYPE=el_GR.UTF-8 /whereitsat/OpenOffice.org1.1.x/soffice\fP (or \fB/usr/bin/oofice\fP).
-.br
-The prefix, an environment variable, allows you to use the same program with different locales;
-in this case, hellenic Unicode (UTF-8). 
 .sp 1
-I put my default locale and keyboard definitions in my \fB.profile\fP: 
+\fBLC_CTYPE=el_GR.UTF-8 /usr/bin/soffice\fP (or\fB/opt/libreoffice3.4/program/soffice\fP ).
 .br
+.sp 1
+I put my default locale and keyboard definitions in my \fB.bashrc\fP or \fB.profile\fP: 
+.br
+.sp 1
 .na
 .B export LC_CTYPE=el_GR.UTF-8
 .br
 .na
-.B setxkbmap us,gr ,polytonic -option grp:ctrl_shift_toggle -option grp_led:scroll
+.B setxkbmap us,el ,polytonic -option grp:ctrl_shift_toggle -option grp_led:scroll
 .br
 .sp 1
 This way multi-lingual text can be entered;  keyboard layout switching is done by pressing Ctrl/Shift;
 alternate keyboard layout is indicated by the Scroll Lock light on the keyboard.
+
+.SH FURTHER DEVELOPMENT
+You may not like the character output for a specific code.  Check out the \fBtlgcodes.h\fP file
+containing the special symbol and punctuation codes and select one to suit you better.  It will
+probably be a while before the beta to Unicode correspondence settles down.
+.sp 1
+Drop me a line, if you need a new feature; let me know if you do find
+an interesting applications that others can profit from.
+
 .SH REFERENCES
 There are several texts describing the internal representation of \fBPHI\fP and 
 \fBTLG\fP text, ID data, citation data and index files.  The originator of this
 format is the Packard Humanities Institute.  The TLG is maintained by UCI \- see
-\fBwww.tlg.uci.edu\fP \- where you may find the \fBTLG Beta Code Manual\fP and the 
+\fBwww.tlg.uci.edu\fP \- where you may find the latest versions of the \fBTLG Beta Code Manual\fP and the 
 \fBTLG Beta Code Quick Reference Guide\fP.
 .sp 1
 Unicode consortium (\fBwww.unicode.org\fP) publications pertaining to the codification
 of characters used in Hellenic literature, scientific and musical texts.
 .sp 1
-The OpenOffice suite (\fBwww.openoffice.org\fP) includes a word processor that you
-can use to load, process and create new polytonic texts.
+The OpenOffice/Libreoffice suite in its various editions 
+(\fBwww.openoffice.org\fP -  apache.org, \fBwww.libreoffice.org\fP, \fBwww.neooffice.org\fP)
+includes a word processor that you can use to load, process and create new polytonic texts.
+.sp 1
+Greek Font Society: \fBwww.greekfontsociety.gr\fP
 
 .SH COPYRIGHT
-Copyright (C) 2004, 2005 Dimitri Marinakis (dm, ssa gr).
+Copyright (C) 2004, 2005, 2011 Dimitri Marinakis (dm, ssa gr).
 
 This file is part of tlgu which is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License (version 2) as published by
