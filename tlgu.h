@@ -1,10 +1,8 @@
 /* tlgu.h
  *
- * Copyright (C) 2004 Dimitri Marinakis
- *
- * Licensed under the terms of the GNU General Public License.
- * ABSOLUTELY NO WARRANTY.
- * See the file `COPYING' in this directory.
+ * This is part of the tlgu utility
+ * Copyright (C) 2004, 2005 Dimitri Marinakis
+ * see the file tlgu.c for copying conditions
  *
  * Hellenic character codes
  * Relevant Unicode standard tables:
@@ -20,7 +18,7 @@
 
 
 #define INRECSIZE 0x2000
-#define OUTRECSIZE 0xA000
+#define OUTRECSIZE 0xFFFFF
 
 /* Beta code escapes and state processing codes */
 #define HELLENIC 1

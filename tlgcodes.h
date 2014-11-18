@@ -1,10 +1,8 @@
 /* tlgcodes.h
  *
- * Copyright (C) 2004 Dimitri Marinakis
- *
- * Licensed under the terms of the GNU General Public License.
- * ABSOLUTELY NO WARRANTY.
- * See the file `COPYING' in this directory.
+ * This is part of the tlgu utility
+ * Copyright (C) 2004, 2005 Dimitri Marinakis
+ * see the file tlgu.c for copying conditions
  *
  * Code arrays for escape sequences
  * See: handle_escape_codes

@@ -1,18 +1,26 @@
-/* tlgu: Translates TLG (D) text files to Unicode text
+/* tlgu: Translates TLG (D) / PHI text files to Unicode text
  *
  * Copyright (C) 2004, 2005 Dimitri Marinakis
  *
- * Licensed under the terms of the GNU General Public License.
- * ABSOLUTELY NO WARRANTY.
- * See the file `COPYING' in this directory.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License Version 2
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * Usage:
  *	 tlgu [options] infile outfile
  *
  * Options:
  *	-r -- primarily Roman text; default betastate = ROMAN, reset on every ID code
- *	-vwxyz -- reference citations are printed in the form xxx.xxx...xxx
- *	-(a)b(cd) -- description citations are printed
+ *	-v -w -x -y -z -- reference citations are printed in the form xxx.xxx...xxx
  *	-B -- output blank space (tab) after each new line (beginning of line)
  *	-p -- pagination is observed, otherwise book lines are printed continuously
  *	-C -- citation debug information is printed
@@ -20,6 +28,11 @@
  *	-T -- bracket debug information is printed
  *	-V -- processing debug information is printed
  *	-W -- multiple output files, one for each work
+ *	-Z -- followed by user-defined string; may include reference citations (%a-%z), 
+ *	      description citations (%A-%Z), control codes (\t, \n, \r) and
+ *            special characters (\$ etc.)
+ *      -e -- companion to -Z above; a string to put out when a defined citation slot
+ *	      is empty (e.g. "NONE", or "-")  
  *
  * Returns: exit code 1 if unsuccesful
  *
@@ -29,6 +42,8 @@
  * years ago to translate Hellenic texts distributed on the TLG CD-ROM from
  * "beta code" to something readable, editable and printable.
  *
+ * Contributors: Troy Griffitts (tg)
+ *
  * Pointers / References:
  *   TLG Project - www.tlg.uci.edu
  *   PHI CD ROM Format Description, Packard Humanities Institute, 19 April 1992
@@ -36,11 +51,12 @@
  *       a .pdf version is also available.
  *   ID locator reference - Text version tlgcodes.txt
  *
- * dm: 14-Jun-2001 ELOT-928
+ * dm: 14-Jun-2001 c port: ELOT-928 with custom dead-accent codes
  *     14-Jun-2004 Unicode
  *     26-Jun-2004 Command-line options
  *     26-Feb-2005 Output file separation (-W option)
  *     06-Mar-2005 Latin accent characters added (without parentheses)
+ * tg: 02-Aug-2005 Free-form citations (options -Z, -e) and per-line processing
  */
 
 #include "tlgu.h"
@@ -55,9 +71,10 @@ int process_beta (int input_count);
 void beta_code(int input_count);
 int id_code(int input_count);
 void store_accents(unsigned char bufferchar);
+const char *resolve_cite_format(const char *cformat);
 
 /****************** PROGRAM VERSION INFORMATION  *******************/
-char *prog_version="1.2";
+char *prog_version="1.3";
 
 /****************** COMMAND LINE OPTIONS  **************************/
 int opt_roman = 0;
@@ -72,6 +89,10 @@ int opt_vcit = 0;
 int opt_wcit = 0;
 int opt_xcit = 0;
 int opt_ycit = 0;
+int opt_cprefix = 0;
+char cformat[253];
+int opt_ecit_blank = 0;
+char ecite[253];
 int opt_zcit = 0;
 int opt_verbose = 0;
 int opt_debug_bracket = 0;
@@ -92,6 +113,8 @@ unsigned char output_buffer[OUTRECSIZE];
 unsigned int outcode;
 int betastate;	/* translation state machine */
 int previous_state;	/* needed for symbol translations */
+int start_new_line = 0;	/* needed for symbol translations */
+int book_change = 0;	/* needed for symbol translations */
 int accents;	/* holds accent combinations */
 char *accented_chars = "AEHIOUWR";
 char *accent_chars = ")(+/\\=|";
@@ -147,7 +170,7 @@ int id_process;	/* if non-zero, command must be processed */
 
 void usage_info(void)
 {
-	printf("\ntlgu: TLG beta code file to Unicode translator ver. %s\n", prog_version);
+	printf("\ntlgu: TLG/PHI beta code file to Unicode translator ver. %s\n", prog_version);
 	printf("\ntlgu: Copyright (C) 2004, 2005 Dimitri Marinakis");
 	printf("\ntlgu: This program is free software; you are encouraged to redistribute it under");
 	printf("\ntlgu: the terms of the GNU General Public License.\n");
@@ -156,6 +179,10 @@ void usage_info(void)
 	printf("\ntlgu: Syntax: [-options...] tlgu beta_code_file text_file\n\n");
 	printf("tlgu: -r -- primarily Roman text; default betastate = ROMAN, reset on every ID code\n");
 	printf("tlgu: -v -w -x -y -z -- work reference citations are printed in the form xxx.xxx...xxx\n");
+	printf("tlgu: -Z <custom_citation_format_prefix> -- use reference and description citation codes in string\n");
+	printf("tlgu:    reference a-z, description A-Z also special codes \\t(ab) \\n(new line) \\r(eturn)\n");
+	printf("tlgu:    e.g. \"%%A/%%Z/%%v/%%w/%%y/%%z\\t\" \n");
+	printf("tlgu: -e <custom_blank_citation_string> -- e.g. \"[NONE]\" instead of default \"\"\n");
 	printf("tlgu: -b -- books are preceded by a page feed and description citations are printed\n");
 	printf("tlgu: -p -- pagination is observed, otherwise book lines are printed continuously\n");
 	printf("tlgu: -B -- output blank space (tab) at the beginning of each line\n");
@@ -239,6 +266,18 @@ main(int argc, char * argv[])
 				break ;
 			case 'z':
 				opt_zcit = 1;
+				break;
+			case 'e':
+				opt_ecit_blank = 1;
+				strcpy(ecite, argv[1]);
+				argc-- ;
+				argv++ ;
+				break;
+			case 'Z':
+				opt_cprefix = 1;
+				strcpy(cformat, argv[1]);
+				argc-- ;
+				argv++ ;
 				break;
 			default:
 				usage_info() ;
@@ -393,6 +432,8 @@ int process_beta (int input_count)
 	int processing;
 	int iptr_max;       /* holds the calculated maximum input pointer value */
 	int return_code;    /* id_code and beta_code bytes written; error if negative */
+	char outstring[511];
+	char nstring[253];
 
 	return_code = 0;
 	/* A beta code stream includes two kinds of data:
@@ -424,9 +465,73 @@ int process_beta (int input_count)
 						if (opt_verbose) printf("\ntlgu: book change request");
 						processing = 0;
 					}
+					start_new_line = 1;
 				} else {
 					/* text data < 0x80 - decrement input pointer before processing */
 					--iptr;
+					if (start_new_line) {
+								/* Write info on (book) citation change */
+								if (book_change) {
+									if (opt_cit_id) {
+										sprintf(outstring, "\n\f[%s]  ", citation[0]);
+										output_string(outstring);
+										sprintf(outstring, "[%s]  ", citation[1]);
+										output_string(outstring);
+										sprintf(outstring, "[%s]  ", citation[2]);
+										output_string(outstring);
+										sprintf(outstring, "[%s]\n", citation[3]);
+										output_string(outstring);
+									}
+									book_change = 0;
+								}
+								sprintf(outstring, "\n");
+								if (opt_blank)
+									strcat(outstring, "\t");
+								else if (opt_cprefix) {
+									strcat(outstring, resolve_cite_format(cformat));
+								}
+								else if (opt_vcit || opt_wcit || opt_xcit || opt_ycit || opt_zcit) {
+									if (opt_vcit) {
+										if (icitation[21] == 0) sprintf(nstring, "%s.",citation[21]);
+										else sprintf(nstring, "%d%s.", icitation[21], citation[21]);
+										if ((opt_ecit_blank) && (!*nstring)) strcpy(nstring, ecite);
+										strcat(outstring, nstring);
+									}
+									if (opt_wcit) {
+										if (icitation[22] == 0) sprintf(nstring, "%s.",citation[22]);
+										else sprintf(nstring, "%d%s.", icitation[22], citation[22]);
+										if ((opt_ecit_blank) && (!*nstring)) strcpy(nstring, ecite);
+										strcat(outstring, nstring);
+									}
+									if (opt_xcit) {
+										if (icitation[23] == 0) sprintf(nstring, "%s.",citation[23]);
+										else sprintf(nstring, "%d%s.", icitation[23], citation[23]);
+										if ((opt_ecit_blank) && (!*nstring)) strcpy(nstring, ecite);
+										strcat(outstring, nstring);
+									}
+									if (opt_ycit) {
+										if (icitation[24] == 0) sprintf(nstring, "%s.",citation[24]);
+										else sprintf(nstring, "%d%s.", icitation[24], citation[24]);
+										if ((opt_ecit_blank) && (!*nstring)) strcpy(nstring, ecite);
+										strcat(outstring, nstring);
+									}
+									if (opt_zcit) {
+										if (icitation[25] == 0) sprintf(nstring, "%s.",citation[25]);
+										else sprintf(nstring, "%d%s", icitation[25], citation[25]);
+										if ((opt_ecit_blank) && (!*nstring)) strcpy(nstring, ecite);
+										strcat(outstring, nstring);
+									}
+									/* Separate text from citation using a tab character */
+									strcat(outstring, "\t");
+								}
+								if (input_buffer[iptr] < 0x80) {
+									/* Print only if not followed by another ID byte */
+									output_string(outstring);
+								}
+						start_new_line = 0;
+						if (opt_roman) betastate = ROMAN;
+						else betastate = HELLENIC;
+					}
 					beta_code(input_count);
 				}
 			} else {
@@ -917,6 +1022,61 @@ void beta_code(int input_count)
 }
 
 
+const char *resolve_cite_format(const char *cformat) {
+	static char *outbuf[511];
+	char nstring[253];
+	*outbuf = 0;
+	const char *c;
+	for (c = cformat; *c; c++) {
+		if (*c == '%') {
+			const char c2 = *(c+1);
+			signed char cstart = -1;
+			if ((c2 >= 'a') && (c2 <= 'z')) {
+				cstart = c2 - 'a';
+			}
+			else if ((c2 >= 'A') && (c2 <= 'Z')) {
+				cstart = 26 + (c2 - 'A');
+			}
+			else if (c2 == '%') {
+				*nstring = '%'; nstring[1] = 0; strcat((char *)outbuf, nstring);
+			}
+			else {
+				fprintf(stderr, "unknown escape sequence: %%%c\n", c2);
+			}
+			c++;		//skip both our '%' and following character (by loop inc);
+
+			if (cstart > 20) {
+				if (icitation[cstart] == 0) sprintf(nstring, "%s",citation[cstart]);
+				else sprintf(nstring, "%d%s", icitation[cstart], citation[cstart]);
+				if ((opt_ecit_blank) && (!*nstring)) strcpy(nstring, ecite);
+				strcat((char *)outbuf, nstring);
+			}
+			else if (cstart > -1) {
+				if (!citation[cstart] || !citation[cstart][0]) {
+					if (opt_ecit_blank) strcat((char *)outbuf, ecite);
+				}
+				else {
+					strcat((char *)outbuf, citation[cstart]);
+				}
+			}
+		}
+		else if (*c == '\\') {
+			switch (*(c+1)) {
+			case 't': strcat((char *)outbuf, "\t"); break;
+			case 'n': strcat((char *)outbuf, "\n"); break;
+			case 'r': strcat((char *)outbuf, "\r"); break;
+			default: *nstring = *(c+1); nstring[1] = 0; strcat((char *)outbuf, nstring); break;
+			}
+			c++;		//skip both our '%' and following character (by loop inc);
+		}
+		else {
+			*nstring = *c; nstring[1] = 0; strcat((char *)outbuf, nstring);
+		}
+	}
+	return (char *)outbuf;
+}
+
+
 /* id_code:
  * <iptr> points to the next character in the <input_buffer> to process;
  * <optr> points to the next empty <output_buffer position.
@@ -930,8 +1090,6 @@ int id_code(int input_count)
 	int processing;
 	unsigned char idchar;
 	unsigned char outcode;
-	char outstring[100];
-	char nstring[20];
 
 
 	return_code = 0;
@@ -1143,19 +1301,7 @@ int id_code(int input_count)
 										strncpy(previous_bcit[1], citation[1], 31);
 										previous_bcit[1][31] = 0;
 									}
-								}
-								/* Write info on (book) citation change */
-								if (opt_cit_id) {
-									if (id_level == 1) {
-										sprintf(outstring, "\n\f[%s]  ", citation[0]);
-										output_string(outstring);
-										sprintf(outstring, "[%s]  ", citation[1]);
-										output_string(outstring);
-										sprintf(outstring, "[%s]  ", citation[2]);
-										output_string(outstring);
-										sprintf(outstring, "[%s]\n", citation[3]);
-										output_string(outstring);
-									}
+									book_change = 1;
 								}
 								break;
 							default:
@@ -1177,42 +1323,6 @@ int id_code(int input_count)
 							case 24:
 								icitation[25] = 1;
 							case 25:
-								sprintf(outstring, "\n");
-								if (opt_blank)
-									strcat(outstring, "\t");
-								else if (opt_vcit || opt_wcit || opt_xcit || opt_ycit || opt_zcit) {
-									if (opt_vcit) {
-										if (icitation[21] == 0) sprintf(nstring, "%s.",citation[21]);
-										else sprintf(nstring, "%d%s.", icitation[21], citation[21]);
-										strcat(outstring, nstring);
-									}
-									if (opt_wcit) {
-										if (icitation[22] == 0) sprintf(nstring, "%s.",citation[22]);
-										else sprintf(nstring, "%d%s.", icitation[22], citation[22]);
-										strcat(outstring, nstring);
-									}
-									if (opt_xcit) {
-										if (icitation[23] == 0) sprintf(nstring, "%s.",citation[23]);
-										else sprintf(nstring, "%d%s.", icitation[23], citation[23]);
-										strcat(outstring, nstring);
-									}
-									if (opt_ycit) {
-										if (icitation[24] == 0) sprintf(nstring, "%s.",citation[24]);
-										else sprintf(nstring, "%d%s.", icitation[24], citation[24]);
-										strcat(outstring, nstring);
-									}
-									if (opt_zcit) {
-										if (icitation[25] == 0) sprintf(nstring, "%s.",citation[25]);
-										else sprintf(nstring, "%d%s", icitation[25], citation[25]);
-										strcat(outstring, nstring);
-									}
-									/* Separate text from citation using a tab character */
-									strcat(outstring, "\t");
-								}
-								if (input_buffer[iptr] < 0x80) {
-									/* Print only if not followed by another ID byte */
-									output_string(outstring);
-								}
 								outcode = 0;
 								break;
 							default:
