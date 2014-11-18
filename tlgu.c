@@ -16,23 +16,30 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * Usage:
- *	 tlgu [options] infile [outfile]
+ *	 tlgu [options] tlgu beta_code_file [unicode_text_file]
  *
  * Options:
- *	-r -- primarily Roman text; default betastate = ROMAN, reset on every ID code
- *	-v -w -x -y -z -- reference citations are printed in the form xxx.xxx...xxx
- *	-B -- output blank space (tab) after each new line (beginning of line)
+ *	-r -- primarily Roman text (e.g. Canon, PHI); default betastate = ROMAN, reset on every ID code
+ *	-v -w -x -y -z -- work reference citations are printed in the form xxx.xxx...xxx
+ *	-Z <custom_citation_format_prefix> -- use reference and description citation codes in string
+ *	    reference a-z, description A-Z also special codes \t(ab) \n(new line) \r(eturn)
+ *	    e.g. "%A/%Z/%v/%w/%y/%z\t"
+ *      -e -- companion to -Z above; a string to put out when a defined citation slot
+ *	      is empty (e.g. "NONE", or "-") 
+ *
+ *	-b -- books are preceded by a page feed and description citations are printed
  *	-p -- pagination is observed, otherwise book lines are printed continuously
+ *	-B -- output blank space (tab) after each new line (beginning of line)
+ *
+ *	-X -- citations are printed as they change (v, w, x)
+ *	-Y -- citations are printed as they change (w, x, y)
+ *	-N -- no spaces - line ends, and hyphens before an ID code, are removed
+ * 
  *	-C -- citation debug information is printed
  *	-S -- special code debug information is printed
  *	-T -- bracket debug information is printed
  *	-V -- processing debug information is printed
  *	-W -- multiple output files, one for each work
- *	-Z -- followed by user-defined string; may include reference citations (%a-%z), 
- *	      description citations (%A-%Z), control codes (\t, \n, \r) and
- *            special characters (\$ etc.)
- *      -e -- companion to -Z above; a string to put out when a defined citation slot
- *	      is empty (e.g. "NONE", or "-")  
  *
  * Returns: exit code 1 if unsuccesful
  *
@@ -47,8 +54,8 @@
  * Pointers / References:
  *   TLG Project - www.tlg.uci.edu
  *   PHI CD ROM Format Description, Packard Humanities Institute, 19 April 1992
- *   Beta code reference - Text versions: tlgbeta.txt or tlgcode.txt
- *       a .pdf version is also available.
+ *   Beta code reference - Text versions: tlgbeta.txt, tlgcode.txt, BCM2004.pdf (23-Jun-2004)
+ *
  *   ID locator reference - Text version tlgcodes.txt
  *
  * 14-Jun-2001 dm -- c port: ELOT-928 with custom dead-accent codes
@@ -58,7 +65,10 @@
  * 06-Mar-2005 dm -- Latin accent characters added (without parentheses)
  * 02-Aug-2005 tg -- Free-form citations (options -Z, -e) and per-line processing
  * 22-Apr-2006 dm -- Includes to make gcc (4.x) happy, final sigma fix for free text
- * 02-Oct-2011 dm -- Output written to stdout if an output file name is not provided 
+ * 02-Oct-2011 dm -- Output written to stdout if an output file name is not provided
+ * 16-Oct-2011 dm -- Code correction for lower case phi
+ * 20-Nov-2011 dm -- stop processing gracefully when writing to stdout
+ * 20-Nov-2011 dm -- e-book type citations (options -X -Y)
  * 
  */
 
@@ -77,7 +87,7 @@ void store_accents(unsigned char bufferchar);
 const char *resolve_cite_format(const char *cformat);
 
 /****************** PROGRAM VERSION INFORMATION  *******************/
-char *prog_version="1.5";
+char *prog_version="1.6";
 
 /****************** COMMAND LINE OPTIONS  **************************/
 int opt_roman = 0;
@@ -102,6 +112,9 @@ int opt_debug_bracket = 0;
 int opt_debug_cit = 0;
 int opt_debug_special = 0;
 int opt_multiple = 0;
+int opt_ebook_cit_x = 0;
+int opt_ebook_cit_y = 0;
+int opt_nospace = 0;
 
 /****************** GLOBAL VARIABLES *******************************/
 
@@ -110,7 +123,9 @@ int optr = 0;	/* output buffer pointer, reset after every write */
 unsigned char input_buffer[INRECSIZE];
 unsigned char output_buffer[OUTRECSIZE];
 #define MAXFILELEN 256
-
+int prev_cit_w = 0;
+int prev_cit_x = 0;
+int prev_cit_y = 0;
 /************ GLOBAL BETA CODE PROCESSING VARIABLES **************/
 
 unsigned int outcode;
@@ -180,15 +195,20 @@ void usage_info(void)
 	printf("\ntlgu: This program comes with ABSOLUTELY NO WARRANTY. See the GNU General Public");
 	printf("\ntlgu: License in the file named `COPYING' for more details.\n");
 	printf("\ntlgu: Syntax: [-options...] tlgu beta_code_file [unicode_text_file]\n");
-	printf("\ntlgu: -r -- primarily Roman text; default betastate = ROMAN, reset on every ID code");
+	printf("\ntlgu: -r -- primarily Roman text (e.g. Canon, PHI); default betastate = ROMAN, reset on every ID code");
 	printf("\ntlgu: -v -w -x -y -z -- work reference citations are printed in the form xxx.xxx...xxx");
 	printf("\ntlgu: -Z <custom_citation_format_prefix> -- use reference and description citation codes in string");
 	printf("\ntlgu:    reference a-z, description A-Z also special codes \\t(ab) \\n(new line) \\r(eturn)");
 	printf("\ntlgu:    e.g. \"%%A/%%Z/%%v/%%w/%%y/%%z\\t\" \n");
 	printf("\ntlgu: -e <custom_blank_citation_string> -- e.g. \"[NONE]\" instead of default \"\"");
+	printf("\ntlgu: -X -- citations are printed as they change (v, w, x)");
+	printf("\ntlgu: -Y -- citations are printed as they change (w, x, y)");
+	printf("\ntlgu: -N -- no spaces - line ends, and hyphens before an ID code, are removed");
+	printf("\n");
 	printf("\ntlgu: -b -- books are preceded by a page feed and description citations are printed");
 	printf("\ntlgu: -p -- pagination is observed, otherwise book lines are printed continuously");
 	printf("\ntlgu: -B -- output blank space (tab) at the beginning of each line");
+	printf("\n");
 	printf("\ntlgu: -C -- citation debug information is printed");
 	printf("\ntlgu: -S -- special code debug information is printed");
  	printf("\ntlgu: -V -- processing debug information is printed");
@@ -216,6 +236,9 @@ main(int argc, char * argv[])
 
 	while(argc > 1 && argv[0][0] == '-') {
 		switch(argv[0][1]) {
+			case 'N':
+				opt_nospace = 1;
+				break;
 			case 'W':
 				opt_multiple = 1;
 				break ;
@@ -231,6 +254,14 @@ main(int argc, char * argv[])
 			case 'C':
 				opt_debug_cit = 1;
 				break ;
+			case 'X':
+				opt_ebook_cit_x = 1;
+				opt_ebook_cit_y = 0;
+				break;
+			case 'Y':
+				opt_ebook_cit_y = 1;
+				opt_ebook_cit_x = 0;
+				break;
 			case 'B':
 				opt_blank = 1;
 				break ;
@@ -242,19 +273,19 @@ main(int argc, char * argv[])
 				break ;
 			case 'a':
 				opt_acit = 1;
-				opt_cit_id =1;
+				opt_cit_id = 1;
 				break ;
 			case 'b':
 				opt_bcit = 1;
-				opt_cit_id =1;
+				opt_cit_id = 1;
 				break ;
 			case 'c':
 				opt_ccit = 1;
-				opt_cit_id =1;
+				opt_cit_id = 1;
 				break ;
 			case 'd':
 				opt_dcit = 1;
-				opt_cit_id =1;
+				opt_cit_id = 1;
 				break ;
 			case 'v':
 				opt_vcit = 1;
@@ -316,7 +347,7 @@ int tlgu(char *input_file, char *output_file)
 
 	char new_file[MAXFILELEN];
 	struct stat filestat;
-
+	
 	/* Open input and output files
 	 */
 	infile = open(input_file, O_RDONLY);
@@ -414,16 +445,20 @@ int tlgu(char *input_file, char *output_file)
 	 * make output file readable
 	 */
 	close(infile);
+	
+	if (opt_verbose) printf("\ntlgu: processing complete\n");
+	if (outfile == STDOUT_FILENO) printf("\n");
 
 	if (close(outfile)) {
 		perror("\ntlgu output file close");
 		return(1);
 	}
-	if (chmod(new_file, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) {
-		perror("\ntlgu output file chmod");
-		return(1);
+	if (outfile != STDOUT_FILENO) {
+		if (chmod(new_file, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) {
+			perror("\ntlgu output file chmod");
+			return(1);
+		}
 	}
-	if (opt_verbose) printf("\ntlgu: processing complete\n");
 	return(0);
 }
 
@@ -493,39 +528,71 @@ int process_beta (int input_count)
 									}
 									book_change = 0;
 								}
-								sprintf(outstring, "\n");
+								if (opt_nospace) {
+									outstring[0] = 0x0;
+								}
+								else {
+									sprintf(outstring, "\n");
+								}
+
 								if (opt_blank)
 									strcat(outstring, "\t");
 								else if (opt_cprefix) {
 									strcat(outstring, resolve_cite_format(cformat));
 								}
+ 								else if (opt_ebook_cit_x) {
+									if (prev_cit_x != icitation[23]) {
+										prev_cit_x = icitation[23];
+										if (prev_cit_w != icitation[22]) {
+											prev_cit_w = icitation[22];
+											sprintf(nstring, "\n[%d.%d] ", icitation[22], icitation[23]);
+										} 
+										else {
+											sprintf(nstring, "\n[%d] ", icitation[23]);
+										}
+										strcat(outstring, nstring);
+									}
+								}
+ 								else if (opt_ebook_cit_y) {
+									if (prev_cit_y != icitation[24]) {
+										prev_cit_y = icitation[24];
+										if (prev_cit_x != icitation[23]) {
+											prev_cit_x = icitation[23];
+											sprintf(nstring, "\n[%d.%d] ", icitation[23], icitation[24]);
+										} 
+										else {
+											sprintf(nstring, "\n[%d] ", icitation[24]);
+										}
+										strcat(outstring, nstring);
+									}
+								}
 								else if (opt_vcit || opt_wcit || opt_xcit || opt_ycit || opt_zcit) {
 									if (opt_vcit) {
-										if (icitation[21] == 0) sprintf(nstring, "%s.",citation[21]);
+										if (icitation[21] == 0) sprintf(nstring, "%s.", citation[21]);
 										else sprintf(nstring, "%d%s.", icitation[21], citation[21]);
 										if ((opt_ecit_blank) && (!*nstring)) strcpy(nstring, ecite);
 										strcat(outstring, nstring);
 									}
 									if (opt_wcit) {
-										if (icitation[22] == 0) sprintf(nstring, "%s.",citation[22]);
+										if (icitation[22] == 0) sprintf(nstring, "%s.", citation[22]);
 										else sprintf(nstring, "%d%s.", icitation[22], citation[22]);
 										if ((opt_ecit_blank) && (!*nstring)) strcpy(nstring, ecite);
 										strcat(outstring, nstring);
 									}
 									if (opt_xcit) {
-										if (icitation[23] == 0) sprintf(nstring, "%s.",citation[23]);
+										if (icitation[23] == 0) sprintf(nstring, "%s.", citation[23]);
 										else sprintf(nstring, "%d%s.", icitation[23], citation[23]);
 										if ((opt_ecit_blank) && (!*nstring)) strcpy(nstring, ecite);
 										strcat(outstring, nstring);
 									}
 									if (opt_ycit) {
-										if (icitation[24] == 0) sprintf(nstring, "%s.",citation[24]);
+										if (icitation[24] == 0) sprintf(nstring, "%s.", citation[24]);
 										else sprintf(nstring, "%d%s.", icitation[24], citation[24]);
 										if ((opt_ecit_blank) && (!*nstring)) strcpy(nstring, ecite);
 										strcat(outstring, nstring);
 									}
 									if (opt_zcit) {
-										if (icitation[25] == 0) sprintf(nstring, "%s.",citation[25]);
+										if (icitation[25] == 0) sprintf(nstring, "%s.", citation[25]);
 										else sprintf(nstring, "%d%s", icitation[25], citation[25]);
 										if ((opt_ecit_blank) && (!*nstring)) strcpy(nstring, ecite);
 										strcat(outstring, nstring);
@@ -893,6 +960,7 @@ int which_sigma(int nextptr)
  * Processes <input_count> characters in <input_buffer> and
  * writes processed output to output_buffer>
  * Changes: optr, output_buffer
+ * 27-Nov-2011 hyphen handling at the end of a line (opt_nospace)
  */
 void beta_code(int input_count)
 {
@@ -901,6 +969,7 @@ void beta_code(int input_count)
 	unsigned char betachar;
 	unsigned int outputchar;
 	int tmp;
+	int tmp_iptr;
 
 	input_pointer_max = iptr + input_count;
 	processing = 1;
@@ -908,12 +977,27 @@ void beta_code(int input_count)
 	while (processing) {
 		if ( (iptr < INRECSIZE) && (iptr < input_pointer_max) ) {
 			betachar = input_buffer[iptr++];
+			
+			/* Skip hyphen if next character is ID data or spaces */
+			if ((betachar == '-') && (opt_nospace)) {
+				tmp_iptr = iptr;
+				while (input_buffer[iptr] == 0x20) {
+					iptr++;
+				}
+				if (input_buffer[iptr] > 0x7F) {
+					betachar = input_buffer[iptr++];
+				} else {
+					/* Not a space, not an ID code, restore pointer */
+					iptr=tmp_iptr;
+				}
+			}
 			if ((betachar > 0x7F)) {
 				/* ID data found - restore pointer and stop processing*/
 				--iptr;
 				processing = 0;
 			} else {
 				outputchar = 0;
+
 				if (strchr(escape_codes, betachar)) {
 					/* Handle escape codes */
 					handle_escape_codes(betachar, getnum());
@@ -1092,6 +1176,7 @@ const char *resolve_cite_format(const char *cformat) {
  * <iptr> points to the next character in the <input_buffer> to process;
  * <optr> points to the next empty <output_buffer position.
  * Returns: 0 or -1 for EOF
+ * 20-Nov-2011 dm -- citation output for e-book option
  */
 int id_code(int input_count)
 {
@@ -1101,7 +1186,6 @@ int id_code(int input_count)
 	int processing;
 	unsigned char idchar;
 	unsigned char outcode;
-
 
 	return_code = 0;
 	input_pointer_max = iptr + input_count;
@@ -1339,7 +1423,6 @@ int id_code(int input_count)
 							default:
 								break;
 						}
-
 					} /* id_process */
 
 					if (outcode) {

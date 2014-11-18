@@ -14,7 +14,7 @@
 .\" Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 .\" Boston, MA 02110-1301 USA.
 .\"
-.TH tlgu 1 "02-Oct-2011" "Version 1.5" "TLG to Unicode Converter"
+.TH tlgu 1 "27-Nov-2011" "Version 1.6" "TLG to Unicode Converter"
 .SH NAME
 
 tlgu \- convert beta code TLG and PHI CD-ROM txt files to Unicode
@@ -33,7 +33,7 @@ tlgu \- convert beta code TLG and PHI CD-ROM txt files to Unicode
 .B tlgu
 will convert an \fIinput_file\fP from Thesaurus Linguae Graeca (TLG) and Packard Humanities Institute (PHI) representation
 to a Unicode (UTF-8) \fIoutput_file\fP.
-If output_file is not specified, the Unicode text is directed to standard output.
+If \fIoutput_file\fP is not specified, the Unicode text is directed to standard output.
 The TLG/PHI representation consists of \fBbeta-code\fP text and \fBcitation\fP information.
 
 .SH OPTIONS
@@ -47,7 +47,7 @@ observes paging instructions.
 By default the program will output line feeds only.
 .TP
 .B \-r
-primarily Roman text. Some TLG texts, notably doccan1.txt and doccan2.txt are mainly
+primarily Roman text (PHI). Some TLG texts, notably doccan1.txt and doccan2.txt are mostly
 roman texts lacking explicit language change codes.  Setting this option will force
 a change to roman text after each citation block is encountered.
 .TP
@@ -81,6 +81,17 @@ e.g. "-" or "[NONE]" are valid inputs
 .B \-B
 inserts blank space (a tab) before each and every line.
 .TP
+.B \-X
+compact format; v, w, x citations are inserted as they change at the beginning of each section.
+.TP
+.B \-Y
+compact format; w, x, y citations are inserted as they change at the beginning of each section.
+.TP
+.B \-N
+no spaces; line ends and hyphens before an ID code are removed while hyphens and spaces before page 
+and column ends are (still) retained.
+.sp 1
+.TP
 .B \-C
 citation debug information is output.
 .TP
@@ -100,8 +111,7 @@ It is based on an earlier program written in 80x86 assembly language (1996) outp
 a home-made font which used the prevalent hellenic font encodings of that time complemented
 by dead accent characters - not very attractive, but readable.
 .sp 1
-Then came Unicode and a plethora of accented character glyphs; nice-looking but
-with the well-known drawback that special processing is needed to do wild-card searches.
+Then came Unicode and a plethora of accented character glyphs; 
 Polytonic fonts are already available (Cardo, Gentium, Athena, Athenian, Porson); new fonts
 are being created and older fonts are being expanded as special-use code points are included
 in the Unicode definition (musical symbols, other special symbols).
@@ -109,7 +119,7 @@ A notable effort since this note was originally drafted is that of the Greek Fon
 now featuring a great, and expanding, selection of open polytonic fonts.
 .sp 1
 So, at this point in time, \fBtlgu\fP will crunch a file which has been formatted
-according to the published TLG format and produce codes for most glyphs
+according to the published TLG/PHI format and produce codes for most glyphs
 generally available.  No attempt has been made to introduce multi-character sequences
 or formatting codes (font changes).  If a code has not been defined, the program will output
 the respective "code family" glyph.  You may use the \fB\-S\fP option to check such codes
@@ -120,6 +130,8 @@ July 2005 - Troy A. Griffitts (scribe, crosswire org) contributed the arbitrary 
 April 2006 - Final sigma will now be output at end-of-line (!) from free-form input text (thank you Jan).
 .sp 1
 October 2011 - stdout is used if output_file is not specified.
+.sp 1
+November 2011 - citations (v, w, x) at the start of section changes (e-book option)
 .SH EXAMPLES
 .B ./tlgu -r DOCCAN2.TXT doccanu.txt
 Translate the TLG canon to a unicode text file. Note the use of the \fB-r\fP option (this file
@@ -149,7 +161,12 @@ Will generate a file with citation description (A, B, D, Z) and citation referen
 levels, separated by "/" followed by a TAB character and the respective text.  
 Blank citation elements will be filled with a single "-" 
 e.g. Asia/Smyrna/1222-1223 ac/IGChAs/Asia Min [Chr]/88/-/2A/7p1 [TAB] inscription text etc.
-
+.TP
+.B ./tlgu -r -N -X LAT0448.TXT LAT0448.xx.TXT
+will produce a compact version of the Gaius Iulius Caesar texts with v and x citations printed 
+as they change; similarly,
+.B ./tlgu -r -N -Y LAT2150.TXT LAT2150.yy.TXT
+will produce a compact version of Zeno's texts.
 .SH POST-PROCESSING EXAMPLES
 I use the OpenOffice/LibreOffice suite for most of my work.  This example shows one of many possible
 ways of using the search and replace facility to create a readable version of the Suda lexicon.

@@ -1,7 +1,7 @@
 /* tlgcodes.h
  *
  * This is part of the tlgu utility
- * Copyright (C) 2004, 2005 Dimitri Marinakis
+ * Copyright (C) 2004, 2005, 2011 Dimitri Marinakis
  * see the file tlgu.c for copying conditions
  *
  * Code arrays for escape sequences

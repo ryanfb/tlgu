@@ -1,5 +1,5 @@
 <!-- Creator     : groff version 1.19.1 -->
-<!-- CreationDate: Sun Oct  2 15:53:20 2011 -->
+<!-- CreationDate: Mon Dec  5 22:38:02 2011 -->
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -59,8 +59,8 @@ files to Unicode</p>
 <p><b>tlgu</b> will convert an <i>input_file</i> from
 Thesaurus Linguae Graeca (TLG) and Packard Humanities
 Institute (PHI) representation to a Unicode (UTF-8)
-<i>output_file</i>. If output_file is not specified, the
-Unicode text is directed to standard output. The TLG/PHI
+<i>output_file</i>. If <i>output_file</i> is not specified,
+the Unicode text is directed to standard output. The TLG/PHI
 representation consists of <b>beta-code</b> text and
 <b>citation</b> information.</p>
 </td>
@@ -105,8 +105,8 @@ will output line feeds only.</p>
 <td width="8%"></td>
 <td width="78%">
 
-<p>primarily Roman text. Some TLG texts, notably
-doccan1.txt and doccan2.txt are mainly roman texts lacking
+<p>primarily Roman text (PHI). Some TLG texts, notably
+doccan1.txt and doccan2.txt are mostly roman texts lacking
 explicit language change codes. Setting this option will
 force a change to roman text after each citation block is
 encountered.</p>
@@ -236,6 +236,43 @@ line.</p>
 <td width="11%"></td>
 <td width="3%">
 
+<p><b>&minus;X</b></p>
+</td>
+<td width="8%"></td>
+<td width="78%">
+
+<p>compact format; v, w, x citations are inserted as they
+change at the beginning of each section.</p>
+</td>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="3%">
+
+<p><b>&minus;Y</b></p>
+</td>
+<td width="8%"></td>
+<td width="78%">
+
+<p>compact format; w, x, y citations are inserted as they
+change at the beginning of each section.</p>
+</td>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="3%">
+
+<p><b>&minus;N</b></p>
+</td>
+<td width="8%"></td>
+<td width="78%">
+
+<p>no spaces; line ends and hyphens before an ID code are
+removed while hyphens and spaces before page and column ends
+are (still) retained.</p>
+</td>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="3%">
+
 <p><b>&minus;C</b></p>
 </td>
 <td width="8%"></td>
@@ -296,19 +333,17 @@ complemented by dead accent characters - not very
 attractive, but readable.</p>
 <!-- INDENTATION -->
 <p>Then came Unicode and a plethora of accented character
-glyphs; nice-looking but with the well-known drawback that
-special processing is needed to do wild-card searches.
-Polytonic fonts are already available (Cardo, Gentium,
-Athena, Athenian, Porson); new fonts are being created and
-older fonts are being expanded as special-use code points
-are included in the Unicode definition (musical symbols,
-other special symbols). A notable effort since this note was
-originally drafted is that of the Greek Font Society, now
-featuring a great, and expanding, selection of open
-polytonic fonts.</p>
+glyphs; Polytonic fonts are already available (Cardo,
+Gentium, Athena, Athenian, Porson); new fonts are being
+created and older fonts are being expanded as special-use
+code points are included in the Unicode definition (musical
+symbols, other special symbols). A notable effort since this
+note was originally drafted is that of the Greek Font
+Society, now featuring a great, and expanding, selection of
+open polytonic fonts.</p>
 <!-- INDENTATION -->
 <p>So, at this point in time, <b>tlgu</b> will crunch a file
-which has been formatted according to the published TLG
+which has been formatted according to the published TLG/PHI
 format and produce codes for most glyphs generally
 available. No attempt has been made to introduce
 multi-character sequences or formatting codes (font
@@ -327,6 +362,9 @@ Jan).</p>
 <!-- INDENTATION -->
 <p>October 2011 - stdout is used if output_file is not
 specified.</p>
+<!-- INDENTATION -->
+<p>November 2011 - citations (v, w, x) at the start of
+section changes (e-book option)</p>
 </td>
 </table>
 <a name="EXAMPLES"></a>
@@ -462,6 +500,27 @@ respective text. Blank citation elements will be filled with
 a single &quot;-&quot; e.g. Asia/Smyrna/1222-1223
 ac/IGChAs/Asia Min [Chr]/88/-/2A/7p1 [TAB] inscription text
 etc.</p>
+</td>
+</table>
+<!-- INDENTATION -->
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="89%">
+<p><b>./tlgu -r -N -X LAT0448.TXT
+LAT0448.xx.TXT</b></p></td>
+</table>
+<!-- INDENTATION -->
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="22%"></td>
+<td width="78%">
+<p>will produce a compact version of the Gaius Iulius Caesar
+texts with v and x citations printed as they change;
+similarly, <b>./tlgu -r -N -Y LAT2150.TXT LAT2150.yy.TXT</b>
+will produce a compact version of Zeno&rsquo;s texts.</p>
 </td>
 </table>
 <a name="POST-PROCESSING EXAMPLES"></a>

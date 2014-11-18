@@ -11,6 +11,7 @@
  * 
  * 22-Apr-2006 dm -- added includes to satisfy picky gcc
  * 02-Oct-2011 dm -- added unistd.h to get STDOUT_FILENO
+ * 16-Oct-2011 dm -- corrected lower case phi code to 03c6 (was phi symbol 3d5)
  */
 
 #include <stdlib.h>
@@ -85,7 +86,7 @@ unsigned int hellenic[] = {
         /*  8     9     :     ;     <     =     >     ?     @ */
          0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f, 0x40,
         /*   a      b      c      d      e      f      g      h */
-         0x3b1, 0x3b2, 0x3be, 0x3b4, 0x3b5, 0x3d5, 0x3b3, 0x3b7,
+         0x3b1, 0x3b2, 0x3be, 0x3b4, 0x3b5, 0x3c6, 0x3b3, 0x3b7,
         /*   i      j      k      l      m      n      o      p */
          0x3b9, 0x3c2, 0x3ba, 0x3bb, 0x3bc, 0x3bd, 0x3bf, 0x3c0,
         /*   q      r      s      t      u      v      w     x */
